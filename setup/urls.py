@@ -16,8 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import routers
+from rest_framework import routers, permissions
 from api_telemetria.api import viewsets
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+
+schema_view = get_schema_view(
+   openapi.Info(
+        title="API para telemetria de veiculos agricolas",
+        default_version='v1',
+        description="Sistema para cadastro e controle por telemetria de frota de veiculos agricolas",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="japinha2murilo@gmail.com"),
+        license=openapi.License(name="openSource"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny]
+)
 
 router = routers.DefaultRouter()
 router.register(r'marcas', viewsets.MarcaViewSet, basename='marca')
@@ -27,7 +42,17 @@ router.register(r'unidades_medida', viewsets.UnidadeMedidaViewSet, basename='uni
 router.register(r'medicoes', viewsets.MedicaoViewSet, basename='medicao')
 router.register(r'medicoes_veiculos', viewsets.MedicaoVeiculoViewSet, basename='medicao_veiculo')
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
 ]
+
+
+urlpatterns += [
+    path('swaggerjson/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+]
+    
